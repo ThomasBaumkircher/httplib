@@ -26,6 +26,7 @@ char *get_http_version(char *);
 int get_content_length(char *);
 char *get_content_type(char *);
 char *get_request_body(char *);
+char *get_request_path(char *);
 
 
 #endif

@@ -4,7 +4,7 @@ char *read_file(char *path){
     // check if file exists
     struct stat buffer;
     if (stat(path, &buffer) == -1)
-        return NULL;
+        return "FILE NOT FOUND";
 
     // open the file
     FILE *fp = fopen(path, "r");
@@ -107,7 +107,7 @@ get_content_type(char *requestBuffer)
         }
         requestLines++;
     }
-4
+
     return contentType;
 }
 
@@ -124,4 +124,20 @@ get_request_body(char *requestBuffer)
     }
 
     return requestBody;
+}
+
+char *
+get_request_path(char *requestBuffer)
+{
+    char *requestPath = malloc(sizeof(char) * 100);
+    
+    char **requestLines = split_string(requestBuffer, "\r\n");
+    char **requestFirstLine = split_string(requestLines[0], " ");
+
+    strcpy(requestPath, requestFirstLine[1]);
+
+    free(requestLines);
+    free(requestFirstLine);
+
+    return requestPath;
 }

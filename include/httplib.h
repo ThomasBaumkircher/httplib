@@ -21,6 +21,7 @@ typedef struct Request {
     char *httpVersion;
     int contentLength;
     char *contentType;
+    char *path;
 
     // Body
     char *body;
@@ -61,6 +62,8 @@ HttplibRouter *httplib_instantiate();
 void httplib_destroy(HttplibRouter *);
 // Add a handle function to the router
 void httplib_add_handlefunc(HttplibRouter *, char *, httplib_handlefunc);
+// Add a static file to the router
+void httplib_add_static(HttplibRouter *, char *);
 // Main loop of the library, handling the requests
 int httplib_serve(HttplibRouter *, int);
 

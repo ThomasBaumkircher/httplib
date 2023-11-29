@@ -43,6 +43,28 @@ httplib_add_handlefunc(HttplibRouter *router, char *path, httplib_handlefunc fun
 }
 
 int
+httplib_handle_static(HttplibRequest *request, HttplibResponseWriter *response)
+{
+    // Read in the index.html file
+    char *path = request->path;
+    if (path[0] == '/')
+        path++;
+
+    char *index_html = read_file(path);
+
+    // Write the index.html file to the response
+    httplib_write_response(response, 200, "OK", "text/html", index_html);
+
+    return 0;
+}
+
+void
+httplib_add_static(HttplibRouter *router, char *path)
+{
+    httplib_add_handlefunc(router, path, httplib_handle_static);
+}
+
+int
 httplib_serve(HttplibRouter *router, int port)
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -155,6 +177,9 @@ httplib_request_parse(char *requestBuffer)
     // Get the request body
     request->body = get_request_body(requestBuffer);
 
+    // Get the path
+    request->path = get_request_path(requestBuffer);
+
     return request;
 }
 
@@ -178,6 +203,9 @@ httplib_request_destroy(HttplibRequest *request)
 
     if (request != NULL)
         free(request);
+
+    if (request->path != NULL)
+        free(request->path);
 }
 
 HttplibResponseWriter *
