@@ -1,16 +1,13 @@
 all:
-	gcc -c src/*.c
+	gcc -c -Wall -Werror -pedantic -fpic src/*.c
+	gcc -shared -o libhttp.so *.o
+	mv *.o build
 
-	cp *.o ~/source/SYT-Mo/02/server/lib
-	cp include/* ~/source/SYT-Mo/02/server/include
-	cp *.o ~/source/SYT-Mo/02/client/lib
-	cp include/* ~/source/SYT-Mo/02/client/include
-
-	sudo cp *.o /usr/lib/httplib
-	sudo cp include/* /usr/include/httplib
+	sudo cp libhttp.so /usr/lib
+	sudo cp include/* /usr/include
 
 test: all
-	gcc -o bin/test test/test.c *.o
+	gcc -o bin/test test/test.c -lhttp
 	./bin/test
 
 init:
@@ -18,5 +15,5 @@ init:
 	mkdir -p bin
 
 clean:
-	rm build/*
-	rm bin/*
+	rm -rf build/*
+	rm -rf bin/*

@@ -278,7 +278,7 @@ httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, ch
 
     // Write the content length
     char *contentLengthHeader = malloc(sizeof(char) * 100);
-    sprintf(contentLengthHeader, "Content-Length: %d\r\n", strlen(body));
+    sprintf(contentLengthHeader, "Content-Length: %ld\r\n", strlen(body));
     write(responseWriter->responseFD, contentLengthHeader, strlen(contentLengthHeader));
 
     // Write the body
