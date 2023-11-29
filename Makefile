@@ -5,6 +5,7 @@ all:
 
 	sudo cp libhttp.so /usr/lib
 	sudo cp include/* /usr/include
+	sudo ldconfig
 
 test: all
 	gcc -o bin/test test/test.c -lhttp
