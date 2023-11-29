@@ -1,4 +1,4 @@
-#include "../include/http_tools.h"
+#include "http_tools.h"
 
 char *read_file(char *path){
     // check if file exists

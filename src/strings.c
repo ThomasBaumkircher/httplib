@@ -1,4 +1,4 @@
-#include "../include/strings.h"
+#include "strings.h"
 
 char **split_string(const char *str, const char *delim) {
     // allocate space for the splitted string
