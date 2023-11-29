@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 
-#define MAX_HTML_SIZE_DIGITS 12
+#define SPLIT_STRING_SLICES_BASE 4
 
 
 char **split_string(const char *, const char *);
