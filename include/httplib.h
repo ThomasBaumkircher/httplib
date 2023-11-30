@@ -57,7 +57,7 @@ typedef struct Router {
 // Library functions
 
 // Instantiator of the router
-HttplibRouter *httplib_instantiate();
+HttplibRouter *httplib_instantiate(void);
 // Destructor of the router
 void httplib_destroy(HttplibRouter *);
 // Add a handle function to the router
@@ -77,3 +77,4 @@ void httplib_responsewriter_destroy(HttplibResponseWriter *);
 int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles, int handlesCount);
 void httplib_responsewriter_set_header(HttplibResponseWriter *, char *, char *);
 void httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, char *statusText, char *contentType, char *body);
+

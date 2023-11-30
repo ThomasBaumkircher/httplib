@@ -1,5 +1,6 @@
 #include "strings.h"
 
+
 char **split_string(const char *str, const char *delim) {
     // allocate space for the splitted string
     size_t n = 0;
@@ -24,3 +25,4 @@ char **split_string(const char *str, const char *delim) {
 
     return splitted;
 }
+

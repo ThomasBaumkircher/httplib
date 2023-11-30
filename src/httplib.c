@@ -1,7 +1,8 @@
 #include "httplib.h"
 
+
 HttplibRouter *
-httplib_instantiate()
+httplib_instantiate(void)
 {
     HttplibRouter *router = malloc(sizeof(HttplibRouter));
 
@@ -285,3 +286,4 @@ httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, ch
     write(responseWriter->responseFD, "\r\n", 2);
     write(responseWriter->responseFD, body, strlen(body));
 }
+

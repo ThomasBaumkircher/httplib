@@ -1,5 +1,6 @@
 #include "http_tools.h"
 
+
 char *read_file(char *path){
     // check if file exists
     struct stat buffer;
@@ -141,3 +142,4 @@ get_request_path(char *requestBuffer)
 
     return requestPath;
 }
+
