@@ -13,7 +13,6 @@
 #include <sys/stat.h>
 
 #include "strings.h"
-#include "api.h"
 
 
 #define MAX_REQUEST_LEN 2048
