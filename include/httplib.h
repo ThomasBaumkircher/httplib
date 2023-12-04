@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <sys/socket.h>
+#include <pthread.h>
 
 #include "strings.h"
 #include "http_tools.h"
@@ -51,13 +52,24 @@ typedef struct Router {
     HttplibRequestHandle *handles;
     int handlesCount;
     int handlesSize;
+
+    pthread_t *handleThreads;
 } HttplibRouter;
+
+// Threading fd queue
+typedef struct FDqueue HttplibFDqueue;
+typedef struct FDqueue {
+  int fd;
+
+  HttplibFDqueue *prev;
+  HttplibFDqueue *next;
+} HttplibFDqueue;
 
 
 // Library functions
 
 // Instantiator of the router
-HttplibRouter *httplib_instantiate(void);
+HttplibRouter *httplib_instantiate(int);
 // Destructor of the router
 void httplib_destroy(HttplibRouter *);
 // Add a handle function to the router
@@ -77,4 +89,8 @@ void httplib_responsewriter_destroy(HttplibResponseWriter *);
 int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles, int handlesCount);
 void httplib_responsewriter_set_header(HttplibResponseWriter *, char *, char *);
 void httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, char *statusText, char *contentType, char *body);
+
+// Threading functions
+void *thread_idle(void *);
+void handle_conn(int, HttplibRouter *);
 
