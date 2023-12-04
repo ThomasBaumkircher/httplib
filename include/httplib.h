@@ -52,8 +52,6 @@ typedef struct Router {
     HttplibRequestHandle *handles;
     int handlesCount;
     int handlesSize;
-
-    pthread_t *handleThreads;
 } HttplibRouter;
 
 // Threading fd queue

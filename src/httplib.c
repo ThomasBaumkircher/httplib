@@ -17,10 +17,10 @@ HttplibRouter *httplib_instantiate(int workerThreadCount) {
   fd_head = NULL;
   fd_tail = NULL;
 
-  router->handleThreads = malloc(sizeof(pthread_t) * workerThreadCount);
   for (int i = 0; i < 5; i++) {
-    pthread_create(&(router->handleThreads[i]), NULL, thread_idle, (void *)router);
-    pthread_detach(router->handleThreads[i]);
+    pthread_t thread;
+    pthread_create(&thread, NULL, thread_idle, (void *)router);
+    pthread_detach(thread);
   }
 
   return router;
@@ -118,6 +118,7 @@ int httplib_serve(HttplibRouter *router, int port) {
     HttplibFDqueue *new_fd = (HttplibFDqueue *)malloc(sizeof(HttplibFDqueue));
     new_fd->fd = newsockfd;
 
+    pthread_mutex_lock(&fd_mtx);
     if (fd_head == NULL) {
       new_fd->next = NULL;
       new_fd->prev = NULL;
@@ -126,6 +127,8 @@ int httplib_serve(HttplibRouter *router, int port) {
       fd_head->next = new_fd;
       new_fd->prev = fd_head;
     }
+    pthread_mutex_unlock(&fd_mtx);
+
     fd_tail = new_fd;
   }
 }
@@ -134,10 +137,10 @@ void *
 thread_idle(void *params)
 {
   HttplibRouter *router = (HttplibRouter *)params;
-  while(1) {
+  for(;;) {
     pthread_mutex_lock(&fd_mtx);
 
-    if (NULL == fd_head) {
+    if (fd_head == NULL) {
       pthread_mutex_unlock(&fd_mtx);
       continue;
     }
