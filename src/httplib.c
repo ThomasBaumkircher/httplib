@@ -1,7 +1,8 @@
 #include "httplib.h"
+#include <pthread.h>
 
-HttplibFDqueue * fd_head;
-HttplibFDqueue * fd_tail;
+HttplibFDqueue *fd_head;
+HttplibFDqueue *fd_tail;
 pthread_mutex_t fd_mtx;
 
 HttplibRouter *httplib_instantiate(int workerThreadCount) {
@@ -32,6 +33,13 @@ void httplib_destroy(HttplibRouter *router) {
 
   if (router != NULL)
     free(router);
+
+  HttplibFDqueue *curr = fd_head;
+  while (curr != NULL) {
+    HttplibFDqueue *next = curr->next;
+    free(curr);
+    curr = next;
+  }
 }
 
 void httplib_add_handlefunc(HttplibRouter *router, char *path,
