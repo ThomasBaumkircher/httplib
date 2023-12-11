@@ -44,22 +44,6 @@ get_request_type(char *requestBuffer)
 }
 
 char *
-get_route(char *requestBuffer)
-{
-    char *route = malloc(sizeof(char) * 100);
-    
-    char **requestLines = split_string(requestBuffer, "\r\n");
-    char **requestFirstLine = split_string(requestLines[0], " ");
-
-    strcpy(route, requestFirstLine[1]);
-
-    free(requestLines);
-    free(requestFirstLine);
-
-    return route;
-}
-
-char *
 get_http_version(char *requestBuffer)
 {
     char *httpVersion = malloc(sizeof(char) * 10);

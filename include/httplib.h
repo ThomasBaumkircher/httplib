@@ -2,35 +2,37 @@
 
 
 #include <arpa/inet.h>
-#include <errno.h>
 #include <sys/socket.h>
 #include <pthread.h>
+#include <stdlib.h>
 
-#include "strings.h"
 #include "http_tools.h"
+#include "strings.h"
 
 
 #define ROUTER_HANDLES_SIZE_BASE 4
 #define MAX_REQUEST_SIZE 2048
+#define SLUG_LABEL "{}"
 
 
 // Request
 typedef struct Request {
     // Headers
     char *method;
-    char *route;
     char *httpVersion;
     int contentLength;
     char *contentType;
     char *path;
+
+    // Path slugs
+    char **slugs;
 
     // Body
     char *body;
 } HttplibRequest;
 
 // Response writer
-typedef struct ResponseWriter {
-    int responseFD;
+typedef struct ResponseWriter { int responseFD;
     char *contentType;
     char *resBody;
     char **resHeaders;
@@ -40,8 +42,17 @@ typedef struct ResponseWriter {
 typedef int httplib_handlefunc(HttplibRequest *, HttplibResponseWriter *);
 
 // Request Handle
+typedef struct RequestSlug {
+    char *slugName;
+    int pathInd;
+} HttplibSlug;
+
 typedef struct RequestHandle {
     char *path;
+
+    HttplibSlug *slugs;
+    int slugsSize;
+
     httplib_handlefunc *func;
 } HttplibRequestHandle;
 
@@ -85,6 +96,7 @@ void httplib_request_destroy(HttplibRequest *);
 HttplibResponseWriter *httplib_responsewriter_instantiate(int);
 void httplib_responsewriter_destroy(HttplibResponseWriter *);
 int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles, int handlesCount);
+int httplib_match_path(char *path, char *handlePath);
 void httplib_responsewriter_set_header(HttplibResponseWriter *, char *, char *);
 void httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, char *statusText, char *contentType, char *body);
 

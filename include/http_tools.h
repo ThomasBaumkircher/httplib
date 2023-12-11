@@ -20,7 +20,6 @@
 
 char *read_file(char *);
 char *get_request_type(char *);
-char *get_route(char *);
 char *get_http_version(char *);
 int get_content_length(char *);
 char *get_content_type(char *);

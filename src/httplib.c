@@ -1,5 +1,6 @@
 #include "httplib.h"
-#include <pthread.h>
+
+const char *SLUG_LBL = SLUG_LABEL;
 
 HttplibFDqueue *fd_head;
 HttplibFDqueue *fd_tail;
@@ -18,7 +19,7 @@ HttplibRouter *httplib_instantiate(int workerThreadCount) {
   fd_head = NULL;
   fd_tail = NULL;
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < workerThreadCount; i++) {
     pthread_t thread;
     pthread_create(&thread, NULL, thread_idle, (void *)router);
     pthread_detach(thread);
@@ -53,7 +54,27 @@ void httplib_add_handlefunc(HttplibRouter *router, char *path,
                                                    router->handlesSize * 2);
     router->handlesSize *= 2;
   }
+  router->handles[router->handlesCount].slugsSize = 0;
 
+  if (path == NULL)
+      goto end;
+
+  char **pathRoutes = split_string(path, "/");
+  if (pathRoutes == NULL)
+      goto end;
+  
+  for (int i = 0; pathRoutes[i] != NULL; i++) {
+    if (strcmp(pathRoutes[i], SLUG_LBL) == 0) {
+      router->handles[router->handlesCount].slugs = realloc(router->handles[router->handlesCount].slugs, sizeof(HttplibSlug) * router->handles[router->handlesCount].slugsSize + 1);
+
+      router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].pathInd = i;
+      router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].slugName = pathRoutes[i];
+
+      router->handles[router->handlesCount].slugsSize++;
+    }
+  }
+
+end:
   router->handles[router->handlesCount].path = path;
   router->handles[router->handlesCount].func = func;
   router->handlesCount++;
@@ -224,9 +245,6 @@ HttplibRequest *httplib_request_parse(char *requestBuffer) {
   // Get the request type
   request->method = get_request_type(requestBuffer);
 
-  // Get the routes
-  request->route = get_route(requestBuffer);
-
   // Get the http version
   request->httpVersion = get_http_version(requestBuffer);
 
@@ -248,9 +266,6 @@ HttplibRequest *httplib_request_parse(char *requestBuffer) {
 void httplib_request_destroy(HttplibRequest *request) {
   if (request->method != NULL)
     free(request->method);
-
-  if (request->route != NULL)
-    free(request->route);
 
   if (request->httpVersion != NULL)
     free(request->httpVersion);
@@ -295,12 +310,52 @@ void httplib_responsewriter_destroy(HttplibResponseWriter *responseWriter) {
 
 int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles,
                         int handlesCount) {
+
+  char **requestPathSplitted = split_string(request->path, "/");
+
   for (int i = 0; i < handlesCount; i++) {
-    if (strcmp(handles[i].path, request->route) == 0)
+    if (httplib_match_path(request->path, handles[i].path)) {
+      // search for matching slugs
+      if (handles[i].slugsSize > 0) {
+        char **slugs = malloc(sizeof(char *) * handles[i].slugsSize);
+        for (int j = 0; j < handles[i].slugsSize; j++) {
+          slugs[j] = malloc(sizeof(char) * (strlen(requestPathSplitted[handles[i].slugs->pathInd]) + 1));
+          strcpy(slugs[j], requestPathSplitted[handles[i].slugs->pathInd]);
+        }
+        request->slugs = slugs;
+      }
+
+      // return correct index of matching path
       return i;
+    }
   }
 
   return -1;
+}
+
+int httplib_match_path(char *path, char *handlePath) {
+  // static route (no slugs)
+  if (strcmp(path, handlePath) == 0)
+    return 1;
+
+  char **requestPathSplitted = split_string(path, "/");
+  char **handlePathSplitted = split_string(handlePath, "/");
+  if (requestPathSplitted == NULL || handlePathSplitted == NULL)
+    return 0;
+
+  while (*handlePathSplitted != NULL && *requestPathSplitted != NULL) {
+    if (strcmp(*handlePathSplitted, SLUG_LBL) == 0)
+      goto continue_loop;
+
+    if (strcmp(*handlePathSplitted, *requestPathSplitted) != 0)
+      return 0;
+
+  continue_loop:
+    handlePathSplitted++;
+    requestPathSplitted++;
+  }
+
+  return 1;
 }
 
 void httplib_responsewriter_set_header(HttplibResponseWriter *responseWriter,
