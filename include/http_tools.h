@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#include "strings.h"
+#include "cstrings.h"
 
 
 #define MAX_REQUEST_LEN 2048

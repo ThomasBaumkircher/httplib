@@ -355,6 +355,9 @@ int httplib_match_path(char *path, char *handlePath) {
     requestPathSplitted++;
   }
 
+  if (*handlePathSplitted != *requestPathSplitted)
+    return 0;
+
   return 1;
 }
 

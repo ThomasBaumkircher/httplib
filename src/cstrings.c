@@ -1,4 +1,4 @@
-#include "strings.h"
+#include "cstrings.h"
 
 
 char **split_string(const char *str, const char *delim) {

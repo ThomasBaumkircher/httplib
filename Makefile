@@ -1,5 +1,5 @@
-all: init httplib.o http_tools.o strings.o
-	gcc -shared -o libhttp.so build/httplib.o build/http_tools.o build/strings.o
+all: init httplib.o http_tools.o cstrings.o
+	gcc -shared -o libhttp.so build/httplib.o build/http_tools.o build/cstrings.o
 
 	sudo cp libhttp.so /usr/lib
 	sudo cp include/*.h /usr/include
@@ -11,8 +11,8 @@ http_tools.o:
 httplib.o:
 	gcc -Wall -Werror -pedantic -fpic -Iinclude -c src/httplib.c -o build/httplib.o
 
-strings.o:
-	gcc -Wall -Werror -pedantic -fpic -Iinclude -c src/strings.c -o build/strings.o
+cstrings.o:
+	gcc -Wall -Werror -pedantic -fpic -Iinclude -c src/cstrings.c -o build/cstrings.o
 
 init:
 	mkdir -p build

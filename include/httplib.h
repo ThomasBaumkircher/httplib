@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 #include "http_tools.h"
-#include "strings.h"
+#include "cstrings.h"
 
 
 #define ROUTER_HANDLES_SIZE_BASE 4
