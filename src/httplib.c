@@ -1,6 +1,8 @@
 #include "httplib.h"
 
-const char *SLUG_LBL = SLUG_LABEL;
+const char *SLUG_INT = "<int>";
+const char *SLUG_FLOAT = "<float>";
+const char *SLUG_STR = "<string>";
 
 HttplibFDqueue *fd_head;
 HttplibFDqueue *fd_tail;
@@ -64,13 +66,19 @@ void httplib_add_handlefunc(HttplibRouter *router, char *path,
       goto end;
   
   for (int i = 0; pathRoutes[i] != NULL; i++) {
-    if (strcmp(pathRoutes[i], SLUG_LBL) == 0) {
-      router->handles[router->handlesCount].slugs = realloc(router->handles[router->handlesCount].slugs, sizeof(HttplibSlug) * router->handles[router->handlesCount].slugsSize + 1);
+    if (pathRoutes[i][0] == SLUG_LABEL_BEGIN) {
+        if (strlen(pathRoutes[i]) > (SLUG_MAX_LEN+2) || pathRoutes[i][strlen(pathRoutes[i])-1] != SLUG_LABEL_END) {
+            printf("Invalid slug at position %d\n", i+1);
+            exit(1);
+        }
 
-      router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].pathInd = i;
-      router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].slugName = pathRoutes[i];
+        router->handles[router->handlesCount].slugs = realloc(router->handles[router->handlesCount].slugs, sizeof(HttplibSlug) * router->handles[router->handlesCount].slugsSize + 1);
 
-      router->handles[router->handlesCount].slugsSize++;
+        router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].pathInd = i;
+        router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].slugName = pathRoutes[i];
+
+        printf("%d\n", router->handles[router->handlesCount].slugsSize);
+        router->handles[router->handlesCount].slugsSize++;
     }
   }
 
@@ -95,8 +103,7 @@ int httplib_handle_static(HttplibRequest *request,
   return 0;
 }
 
-void httplib_add_static(HttplibRouter *router, char *path) {
-  httplib_add_handlefunc(router, path, httplib_handle_static);
+void httplib_add_static(HttplibRouter *router, char *path) { httplib_add_handlefunc(router, path, httplib_handle_static);
 }
 
 int httplib_serve(HttplibRouter *router, int port) {
@@ -317,12 +324,29 @@ int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles,
     if (httplib_match_path(request->path, handles[i].path)) {
       // search for matching slugs
       if (handles[i].slugsSize > 0) {
-        char **slugs = malloc(sizeof(char *) * handles[i].slugsSize);
+        void **slugs = malloc(sizeof(char *) * handles[i].slugsSize);
         for (int j = 0; j < handles[i].slugsSize; j++) {
-          slugs[j] = malloc(sizeof(char) * (strlen(requestPathSplitted[handles[i].slugs->pathInd]) + 1));
-          strcpy(slugs[j], requestPathSplitted[handles[i].slugs->pathInd]);
+            request->slugs = slugs;
+
+            char *slugStr = malloc(SLUG_MAX_LEN);
+            strncpy(slugStr, requestPathSplitted[handles[i].slugs[j].pathInd], strlen(requestPathSplitted[handles[i].slugs[j].pathInd]));
+
+            if (strcmp(handles[i].slugs[j].slugName, SLUG_INT) == 0) {
+                int *slug = malloc(sizeof(int));
+                *slug = atoi(slugStr);
+                slugs[j] = (void *) slug;
+            }
+
+            else if (strcmp(handles[i].slugs[j].slugName, SLUG_FLOAT) == 0) {
+                float *slug = malloc(sizeof(float));
+                *slug = atof(slugStr);
+                slugs[j] = (void *) slug;
+            }
+
+            else if (strcmp(handles[i].slugs[j].slugName, SLUG_STR) == 0) {
+                slugs[j] = (void *) slugStr;
+            }
         }
-        request->slugs = slugs;
       }
 
       // return correct index of matching path
@@ -344,7 +368,7 @@ int httplib_match_path(char *path, char *handlePath) {
     return 0;
 
   while (*handlePathSplitted != NULL && *requestPathSplitted != NULL) {
-    if (strcmp(*handlePathSplitted, SLUG_LBL) == 0)
+    if (*handlePathSplitted[0] == SLUG_LABEL_BEGIN)
       goto continue_loop;
 
     if (strcmp(*handlePathSplitted, *requestPathSplitted) != 0)

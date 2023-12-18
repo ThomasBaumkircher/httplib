@@ -12,7 +12,9 @@
 
 #define ROUTER_HANDLES_SIZE_BASE 4
 #define MAX_REQUEST_SIZE 2048
-#define SLUG_LABEL "{}"
+#define SLUG_LABEL_BEGIN '<'
+#define SLUG_LABEL_END '>'
+#define SLUG_MAX_LEN 8
 
 
 // Request
@@ -25,7 +27,7 @@ typedef struct Request {
     char *path;
 
     // Path slugs
-    char **slugs;
+    void **slugs;
 
     // Body
     char *body;
