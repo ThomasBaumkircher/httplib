@@ -27,14 +27,15 @@ typedef struct Request {
     char *path;
 
     // Path slugs
-    void **slugs;
+    void *slugs;
 
     // Body
     char *body;
 } HttplibRequest;
 
 // Response writer
-typedef struct ResponseWriter { int responseFD;
+typedef struct ResponseWriter {
+    int responseFD;
     char *contentType;
     char *resBody;
     char **resHeaders;

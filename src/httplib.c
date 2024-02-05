@@ -77,7 +77,7 @@ void httplib_add_handlefunc(HttplibRouter *router, char *path,
         router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].pathInd = i;
         router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].slugName = pathRoutes[i];
 
-        printf("%d\n", router->handles[router->handlesCount].slugsSize);
+        printf("Processed slug: %d\n", router->handles[router->handlesCount].slugsSize+1);
         router->handles[router->handlesCount].slugsSize++;
     }
   }
@@ -324,29 +324,34 @@ int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles,
     if (httplib_match_path(request->path, handles[i].path)) {
       // search for matching slugs
       if (handles[i].slugsSize > 0) {
-        void **slugs = malloc(sizeof(char *) * handles[i].slugsSize);
+        void *slugs = malloc(handles[i].slugsSize * sizeof(void *));
+        void *slugs_track = slugs;
+
         for (int j = 0; j < handles[i].slugsSize; j++) {
-            request->slugs = slugs;
 
             char *slugStr = malloc(SLUG_MAX_LEN);
             strncpy(slugStr, requestPathSplitted[handles[i].slugs[j].pathInd], strlen(requestPathSplitted[handles[i].slugs[j].pathInd]));
 
             if (strcmp(handles[i].slugs[j].slugName, SLUG_INT) == 0) {
-                int *slug = malloc(sizeof(int));
+                int *slug = (int *)slugs_track;
                 *slug = atoi(slugStr);
-                slugs[j] = (void *) slug;
+                slugs_track = (int *)slugs_track + sizeof(int);
             }
 
             else if (strcmp(handles[i].slugs[j].slugName, SLUG_FLOAT) == 0) {
-                float *slug = malloc(sizeof(float));
+                float *slug = (float *)slugs_track;
                 *slug = atof(slugStr);
-                slugs[j] = (void *) slug;
+                slugs_track = (float *)slugs_track + sizeof(float);
             }
 
             else if (strcmp(handles[i].slugs[j].slugName, SLUG_STR) == 0) {
-                slugs[j] = (void *) slugStr;
+                char **slug = (char **)slugs_track;
+                *slug = slugStr;
+                slugs_track = (char **)slugs_track + sizeof(char *);
             }
         }
+
+        request->slugs = slugs;
       }
 
       // return correct index of matching path
