@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "filesystem": "c",
+        "api.h": "c"
+    }
+}

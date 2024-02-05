@@ -1,0 +1,53 @@
+[
+  {
+    "arguments": [
+      "/sbin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-fpic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/httplib.o",
+      "src/httplib.c"
+    ],
+    "directory": "/home/thoma/source/httplib",
+    "file": "/home/thoma/source/httplib/src/httplib.c",
+    "output": "/home/thoma/source/httplib/build/httplib.o"
+  },
+  {
+    "arguments": [
+      "/sbin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-fpic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/http_tools.o",
+      "src/http_tools.c"
+    ],
+    "directory": "/home/thoma/source/httplib",
+    "file": "/home/thoma/source/httplib/src/http_tools.c",
+    "output": "/home/thoma/source/httplib/build/http_tools.o"
+  },
+  {
+    "arguments": [
+      "/sbin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-fpic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/strings.o",
+      "src/strings.c"
+    ],
+    "directory": "/home/thoma/source/httplib",
+    "file": "/home/thoma/source/httplib/src/strings.c",
+    "output": "/home/thoma/source/httplib/build/strings.o"
+  }
+]
