@@ -45,7 +45,7 @@ void httplib_destroy(HttplibRouter *router) {
   }
 }
 
-void httplib_add_handlefunc(HttplibRouter *router, char *path,
+void httplib_add_handlefunc(HttplibRouter *router, const char *path,
                             httplib_handlefunc func) {
   if (router->handles == NULL) {
     router->handles =
@@ -83,7 +83,7 @@ void httplib_add_handlefunc(HttplibRouter *router, char *path,
   }
 
 end:
-  router->handles[router->handlesCount].path = path;
+  router->handles[router->handlesCount].path = strdup(path);
   router->handles[router->handlesCount].func = func;
   router->handlesCount++;
 }
@@ -91,7 +91,7 @@ end:
 int httplib_handle_static(HttplibRequest *request,
                           HttplibResponseWriter *response) {
   // Read in the index.html file
-  char *path = request->path;
+  char *path = strdup(request->path);
   if (path[0] == '/')
     path++;
 
@@ -103,7 +103,7 @@ int httplib_handle_static(HttplibRequest *request,
   return 0;
 }
 
-void httplib_add_static(HttplibRouter *router, char *path) { httplib_add_handlefunc(router, path, httplib_handle_static);
+void httplib_add_static(HttplibRouter *router, const char *path) { httplib_add_handlefunc(router, path, httplib_handle_static);
 }
 
 int httplib_serve(HttplibRouter *router, int port) {
@@ -362,7 +362,7 @@ int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles,
   return -1;
 }
 
-int httplib_match_path(char *path, char *handlePath) {
+int httplib_match_path(const char *path, const char *handlePath) {
   // static route (no slugs)
   if (strcmp(path, handlePath) == 0)
     return 1;

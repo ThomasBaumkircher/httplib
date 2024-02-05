@@ -43,11 +43,11 @@
       "-Iinclude",
       "-c",
       "-o",
-      "build/strings.o",
-      "src/strings.c"
+      "build/cstrings.o",
+      "src/cstrings.c"
     ],
     "directory": "/home/thoma/source/httplib",
-    "file": "/home/thoma/source/httplib/src/strings.c",
-    "output": "/home/thoma/source/httplib/build/strings.o"
+    "file": "/home/thoma/source/httplib/src/cstrings.c",
+    "output": "/home/thoma/source/httplib/build/cstrings.o"
   }
 ]

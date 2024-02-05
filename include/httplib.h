@@ -85,9 +85,9 @@ HttplibRouter *httplib_instantiate(int);
 // Destructor of the router
 void httplib_destroy(HttplibRouter *);
 // Add a handle function to the router
-void httplib_add_handlefunc(HttplibRouter *, char *, httplib_handlefunc);
+void httplib_add_handlefunc(HttplibRouter *, const char *, httplib_handlefunc);
 // Add a static file to the router
-void httplib_add_static(HttplibRouter *, char *);
+void httplib_add_static(HttplibRouter *, const char *);
 // Main loop of the library, handling the requests
 int httplib_serve(HttplibRouter *, int);
 
@@ -99,7 +99,7 @@ void httplib_request_destroy(HttplibRequest *);
 HttplibResponseWriter *httplib_responsewriter_instantiate(int);
 void httplib_responsewriter_destroy(HttplibResponseWriter *);
 int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles, int handlesCount);
-int httplib_match_path(char *path, char *handlePath);
+int httplib_match_path(const char *path, const char *handlePath);
 void httplib_responsewriter_set_header(HttplibResponseWriter *, char *, char *);
 void httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, char *statusText, char *contentType, char *body);
 
