@@ -1,19 +1,11 @@
-<<<<<<< HEAD
-#include "../include/http_tools.h"
-=======
 #include "http_tools.h"
 
->>>>>>> 189e4e51b651e103dbf33ac9ca700f1f1962ee5e
 
 char *read_file(char *path){
     // check if file exists
     struct stat buffer;
     if (stat(path, &buffer) == -1)
-<<<<<<< HEAD
-        return NULL;
-=======
         return "FILE NOT FOUND";
->>>>>>> 189e4e51b651e103dbf33ac9ca700f1f1962ee5e
 
     // open the file
     FILE *fp = fopen(path, "r");
@@ -52,25 +44,6 @@ get_request_type(char *requestBuffer)
 }
 
 char *
-<<<<<<< HEAD
-get_route(char *requestBuffer)
-{
-    char *route = malloc(sizeof(char) * 100);
-    
-    char **requestLines = split_string(requestBuffer, "\r\n");
-    char **requestFirstLine = split_string(requestLines[0], " ");
-
-    strcpy(route, requestFirstLine[1]);
-
-    free(requestLines);
-    free(requestFirstLine);
-
-    return route;
-}
-
-char *
-=======
->>>>>>> 189e4e51b651e103dbf33ac9ca700f1f1962ee5e
 get_http_version(char *requestBuffer)
 {
     char *httpVersion = malloc(sizeof(char) * 10);
@@ -119,11 +92,6 @@ get_content_type(char *requestBuffer)
         }
         requestLines++;
     }
-<<<<<<< HEAD
-4
-=======
-
->>>>>>> 189e4e51b651e103dbf33ac9ca700f1f1962ee5e
     return contentType;
 }
 
@@ -140,9 +108,6 @@ get_request_body(char *requestBuffer)
     }
 
     return requestBody;
-<<<<<<< HEAD
-}
-=======
 }
 
 char *
@@ -161,4 +126,3 @@ get_request_path(char *requestBuffer)
     return requestPath;
 }
 
->>>>>>> 189e4e51b651e103dbf33ac9ca700f1f1962ee5e
