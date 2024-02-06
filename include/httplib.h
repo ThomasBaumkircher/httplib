@@ -100,8 +100,8 @@ HttplibResponseWriter *httplib_responsewriter_instantiate(int);
 void httplib_responsewriter_destroy(HttplibResponseWriter *);
 int httplib_find_handle(HttplibRequest *request, HttplibRequestHandle *handles, int handlesCount);
 int httplib_match_path(const char *path, const char *handlePath);
-void httplib_responsewriter_set_header(HttplibResponseWriter *, char *, char *);
-void httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, char *statusText, char *contentType, char *body);
+void httplib_responsewriter_set_header(HttplibResponseWriter *, const char *, const char *);
+void httplib_write_response(HttplibResponseWriter *responseWriter, int statusCode, const char *statusText, const char *contentType, const char *body);
 
 // Threading functions
 void *thread_idle(void *);

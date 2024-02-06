@@ -391,7 +391,7 @@ int httplib_match_path(const char *path, const char *handlePath) {
 }
 
 void httplib_responsewriter_set_header(HttplibResponseWriter *responseWriter,
-                                       char *headerName, char *headerValue) {
+                                       const char *headerName, const char *headerValue) {
   if (responseWriter->resHeaders == NULL) {
     responseWriter->resHeaders = malloc(sizeof(char *) * 1);
     responseWriter->resHeaders[0] = malloc(sizeof(char) * 100);
@@ -409,8 +409,8 @@ void httplib_responsewriter_set_header(HttplibResponseWriter *responseWriter,
 }
 
 void httplib_write_response(HttplibResponseWriter *responseWriter,
-                            int statusCode, char *statusText, char *contentType,
-                            char *body) {
+                            int statusCode, const char *statusText, const char *contentType,
+                            const char *body) {
   // Write the status line
   char *statusLine = malloc(sizeof(char) * 100);
   sprintf(statusLine, "HTTP/1.1 %d %s\r\n", statusCode, statusText);
