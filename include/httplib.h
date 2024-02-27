@@ -17,7 +17,7 @@
 #define SLUG_LABEL_END '>'
 #define SLUG_MAX_LEN 8
 
-#define THREAD_SLEEP_MILLIS 100
+#define THREAD_SLEEP_MILLIS 5
 
 
 // Request
