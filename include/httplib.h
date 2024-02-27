@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "http_tools.h"
 #include "cstrings.h"
@@ -15,6 +16,8 @@
 #define SLUG_LABEL_BEGIN '<'
 #define SLUG_LABEL_END '>'
 #define SLUG_MAX_LEN 8
+
+#define THREAD_SLEEP_MILLIS 100
 
 
 // Request
