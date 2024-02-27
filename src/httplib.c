@@ -179,7 +179,7 @@ thread_idle(void *params)
 
     if (fd_head == NULL) {
       pthread_mutex_unlock(&fd_mtx);
-      usleep(5);
+      usleep(1000);
       continue;
     }
     
