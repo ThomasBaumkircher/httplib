@@ -5,7 +5,6 @@
 #include <sys/socket.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include "http_tools.h"
 #include "cstrings.h"
