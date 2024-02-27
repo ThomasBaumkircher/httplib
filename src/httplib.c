@@ -174,6 +174,10 @@ thread_idle(void *params)
 {
   HttplibRouter *router = (HttplibRouter *)params;
   for(;;) {
+    if (fd_head == NULL) {
+      continue;
+    }
+
     pthread_mutex_lock(&fd_mtx);
 
     if (fd_head == NULL) {
