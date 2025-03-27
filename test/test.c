@@ -7,7 +7,7 @@ int handle_test(HttplibRequest *, HttplibResponseWriter *);
 int
 main(int argc, char **argv)
 {
-    HttplibRouter *router = httplib_instantiate(1);
+    HttplibRouter *router = httplib_instantiate();
 
     httplib_add_handlefunc(router, "/", handle_root);
     httplib_add_handlefunc(router, "/test/<int>/<float>", handle_test);

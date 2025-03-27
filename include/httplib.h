@@ -84,7 +84,7 @@ typedef struct FDqueue {
 // Library functions
 
 // Instantiator of the router
-HttplibRouter *httplib_instantiate(int);
+HttplibRouter *httplib_instantiate(void);
 // Destructor of the router
 void httplib_destroy(HttplibRouter *);
 // Add a handle function to the router

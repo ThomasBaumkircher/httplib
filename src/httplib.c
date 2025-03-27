@@ -8,7 +8,8 @@ HttplibFDqueue *fd_head;
 HttplibFDqueue *fd_tail;
 pthread_mutex_t fd_mtx;
 
-HttplibRouter *httplib_instantiate(int workerThreadCount) {
+HttplibRouter *httplib_instantiate(void) {
+  int workerThreadCount = 1;
   HttplibRouter *router = malloc(sizeof(HttplibRouter));
 
   router->hostAddr.sin_family = AF_INET;
@@ -37,7 +38,7 @@ void httplib_destroy(HttplibRouter *router) {
   if (router != NULL)
     free(router);
 
-  HttplibFDqueue *curr = fd_head;
+  HttplibFDqueue *curr = fd_tail;
   while (curr != NULL) {
     HttplibFDqueue *next = curr->next;
     free(curr);
@@ -154,23 +155,22 @@ int httplib_serve(HttplibRouter *router, int port) {
       perror("webserver (accept)");
       continue;
     }
-    printf("\n\nconnection accepted\n");
+    printf("\n\nconnection with fd: %d accepted\n", newsockfd);
 
     HttplibFDqueue *new_fd = (HttplibFDqueue *)malloc(sizeof(HttplibFDqueue));
     new_fd->fd = newsockfd;
 
+    new_fd->prev = NULL;
     pthread_mutex_lock(&fd_mtx);
     if (fd_head == NULL) {
       new_fd->next = NULL;
-      new_fd->prev = NULL;
       fd_head = new_fd;
     } else {
-      fd_head->next = new_fd;
-      new_fd->prev = fd_head;
+      fd_tail->prev = new_fd;
+      new_fd->next = fd_tail;
     }
-    pthread_mutex_unlock(&fd_mtx);
-
     fd_tail = new_fd;
+    pthread_mutex_unlock(&fd_mtx);
   }
 }
 
@@ -188,13 +188,15 @@ thread_idle(void *params)
     }
     
     int fd = fd_head->fd;
-    if (fd_head->next == NULL) {
+    if (fd_head->prev == NULL) {
       fd_head = NULL;
     }
     
     else {
-      fd_head->next->prev = NULL;
-      fd_head = fd_head->next;
+      HttplibFDqueue *fd_head_prev = fd_head->prev;
+      free(fd_head);
+      fd_head = fd_head_prev;
+      fd_head->next = NULL;
     }
 
     pthread_mutex_unlock(&fd_mtx);
@@ -434,11 +436,23 @@ void httplib_write_response(HttplibResponseWriter *responseWriter,
   write(responseWriter->responseFD, contentLengthHeader,
         strlen(contentLengthHeader));
 
+  // Write the headers
+  if (responseWriter->resHeaders != NULL) {
+    for (int i = 0; i < sizeof(responseWriter->resHeaders); i++) {
+      write(responseWriter->responseFD, responseWriter->resHeaders[i],
+            strlen(responseWriter->resHeaders[i]));
+    }
+  }
+
   // Write the body
   write(responseWriter->responseFD, "\r\n", 2);
   write(responseWriter->responseFD, body, strlen(body));
 
-  free(statusLine);
-  free(contentTypeHeader);
-  free(contentLengthHeader);
+  // Free the memory
+  if (statusLine != NULL)
+    free(statusLine);
+  if (contentTypeHeader != NULL)
+    free(contentTypeHeader);
+  if (contentLengthHeader != NULL)
+    free(contentLengthHeader);
 }
