@@ -72,6 +72,11 @@ void httplib_add_handlefunc(HttplibRouter *router, const char *path,
             exit(1);
         }
 
+        else if (strcmp(pathRoutes[i], SLUG_INT) != 0 && strcmp(pathRoutes[i], SLUG_FLOAT) != 0 && strcmp(pathRoutes[i], SLUG_STR) != 0) {
+            printf("Invalid slug at position %d\n", i+1);
+            exit(1);
+        }
+
         router->handles[router->handlesCount].slugs = realloc(router->handles[router->handlesCount].slugs, sizeof(HttplibSlug) * router->handles[router->handlesCount].slugsSize + 1);
 
         router->handles[router->handlesCount].slugs[router->handles[router->handlesCount].slugsSize].pathInd = i;
@@ -432,4 +437,8 @@ void httplib_write_response(HttplibResponseWriter *responseWriter,
   // Write the body
   write(responseWriter->responseFD, "\r\n", 2);
   write(responseWriter->responseFD, body, strlen(body));
+
+  free(statusLine);
+  free(contentTypeHeader);
+  free(contentLengthHeader);
 }
