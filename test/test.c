@@ -10,7 +10,7 @@ main(int argc, char **argv)
     HttplibRouter *router = httplib_instantiate(1);
 
     httplib_add_handlefunc(router, "/", handle_root);
-    httplib_add_handlefunc(router, "/test/<int>", handle_test);
+    httplib_add_handlefunc(router, "/test/<int>/<float>", handle_test);
 
     httplib_serve(router, (argc > 1) ? atoi(argv[1]) : 8080);
 
@@ -32,6 +32,7 @@ handle_test(HttplibRequest *request, HttplibResponseWriter *response)
 {
     struct slugs {
         int id;
+        float f;
     } *slugs = request->slugs;
 
     char *res_text = malloc(100);
