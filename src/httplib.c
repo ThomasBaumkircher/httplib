@@ -8,8 +8,7 @@ HttplibFDqueue *fd_head;
 HttplibFDqueue *fd_tail;
 pthread_mutex_t fd_mtx;
 
-HttplibRouter *httplib_instantiate(void) {
-  int workerThreadCount = 1;
+HttplibRouter *httplib_instantiate(int workerThreadCount) {
   HttplibRouter *router = malloc(sizeof(HttplibRouter));
 
   router->hostAddr.sin_family = AF_INET;
@@ -21,6 +20,7 @@ HttplibRouter *httplib_instantiate(void) {
 
   fd_head = NULL;
   fd_tail = NULL;
+  pthread_mutex_init(&fd_mtx, NULL);
 
   for (int i = 0; i < workerThreadCount; i++) {
     pthread_t thread;
@@ -38,9 +38,9 @@ void httplib_destroy(HttplibRouter *router) {
   if (router != NULL)
     free(router);
 
-  HttplibFDqueue *curr = fd_tail;
+  HttplibFDqueue *curr = fd_head;
   while (curr != NULL) {
-    HttplibFDqueue *next = curr->next;
+    HttplibFDqueue *next = curr->prev;
     free(curr);
     curr = next;
   }
@@ -159,15 +159,13 @@ int httplib_serve(HttplibRouter *router, int port) {
 
     HttplibFDqueue *new_fd = (HttplibFDqueue *)malloc(sizeof(HttplibFDqueue));
     new_fd->fd = newsockfd;
-
     new_fd->prev = NULL;
+
     pthread_mutex_lock(&fd_mtx);
     if (fd_head == NULL) {
-      new_fd->next = NULL;
       fd_head = new_fd;
     } else {
       fd_tail->prev = new_fd;
-      new_fd->next = fd_tail;
     }
     fd_tail = new_fd;
     pthread_mutex_unlock(&fd_mtx);
@@ -181,13 +179,14 @@ thread_idle(void *params)
   for(;;) {
     pthread_mutex_lock(&fd_mtx);
 
-    if (fd_head == NULL) {
+    while (fd_head == NULL) {
       pthread_mutex_unlock(&fd_mtx);
       usleep(THREAD_SLEEP_MILLIS * 1000);
       continue;
     }
     
     int fd = fd_head->fd;
+
     if (fd_head->prev == NULL) {
       fd_head = NULL;
     }
@@ -196,7 +195,6 @@ thread_idle(void *params)
       HttplibFDqueue *fd_head_prev = fd_head->prev;
       free(fd_head);
       fd_head = fd_head_prev;
-      fd_head->next = NULL;
     }
 
     pthread_mutex_unlock(&fd_mtx);
@@ -210,9 +208,15 @@ thread_idle(void *params)
 void handle_conn(int newsockfd, HttplibRouter *router) {
   // Read the request
   char *buffer = (char *)malloc(MAX_REQUEST_SIZE);
+  if (newsockfd < 0 || fcntl(newsockfd, F_GETFL) == -1) {
+    perror("Invalid file descriptor");
+    return;
+  }
+
   int readBytes = read(newsockfd, buffer, MAX_REQUEST_SIZE);
   if (readBytes < 0) {
     perror("webserver (read)");
+    return;
   }
 
   // Parse the request

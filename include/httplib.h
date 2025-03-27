@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "http_tools.h"
 #include "cstrings.h"
@@ -77,14 +78,13 @@ typedef struct FDqueue {
   int fd;
 
   HttplibFDqueue *prev;
-  HttplibFDqueue *next;
 } HttplibFDqueue;
 
 
 // Library functions
 
 // Instantiator of the router
-HttplibRouter *httplib_instantiate(void);
+HttplibRouter *httplib_instantiate(int);
 // Destructor of the router
 void httplib_destroy(HttplibRouter *);
 // Add a handle function to the router
